@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5EFE0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Dossiê Noir: Detetive Dedutivo</title>
+
+  <!-- Manifesto PWA Dinâmico -->
+  <link id="pwa-manifest" rel="manifest" href="" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tipografia Editorial & Investigativa -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Tema 1 (Padrão): Dossiê Pulp & Arquivo Clássico */
+      --bg-desk: #231D18;
+      --bg-desk-grad: #342A21;
+      --paper-bg: #F5EFE0;
+      --paper-card: #EAE0CC;
+      --paper-alt: #DFD2B8;
+      --ink-main: #1F1A17;
+      --ink-muted: #5C4E42;
+      --border-ink: #B7A58A;
+      --accent-crimson: #B91C1C;
+      --accent-teal: #0F766E;
+      --accent-gold: #B45309;
+      --grid-cell-bg: #FAF6EC;
+      --grid-hover: #EFE5D1;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-desk);
+      color: var(--ink-main);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .font-editorial { font-family: 'Playfair Display', Georgia, serif; }
+    .font-typewriter { font-family: 'Courier Prime', 'Courier New', monospace; }
+
+    .desk-backdrop {
+      background-color: var(--bg-desk);
+      background-image: radial-gradient(circle at 50% 0%, var(--bg-desk-grad) 0%, var(--bg-desk) 90%);
+    }
+
+    .dossier-sheet {
+      background-color: var(--paper-bg);
+      border: 1.5px solid var(--border-ink);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45);
+    }
+
+    .dossier-card {
+      background-color: var(--paper-card);
+      border: 1px solid var(--border-ink);
+    }
+
+    .gold-avatar-ring {
+      border-color: #EAB308 !important;
+      box-shadow: 0 0 0 2px #854D0E, 0 0 14px rgba(234, 179, 8, 0.85);
+    }
+
+    /* Grade Lógica Triangular */
+    .logic-table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .logic-table th, .logic-table td {
+      border: 1px solid var(--border-ink);
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .logic-cat-header {
+      background-color: var(--paper-alt);
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 2px;
+    }
+
+    .logic-col-header {
+      background-color: var(--paper-card);
+      height: 76px;
+      padding: 3px 1px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.12;
+      overflow: hidden;
+    }
+
+    .logic-row-header {
+      background-color: var(--paper-card);
+      text-align: left !important;
+      padding: 4px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .logic-cell {
+      background-color: var(--grid-cell-bg);
+      height: 36px;
+      cursor: pointer;
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: 17px;
+      transition: background-color 0.12s ease, transform 0.1s ease;
+    }
+
+    .logic-cell:active {
+      transform: scale(0.9);
+      background-color: var(--grid-hover);
+    }
+
+    .logic-cell.mark-no {
+      color: var(--accent-crimson);
+    }
+
+    .logic-cell.mark-yes {
+      background-color: rgba(15, 118, 110, 0.18);
+      color: var(--accent-teal);
+    }
+
+    .logic-cell.cell-hinted {
+      box-shadow: inset 0 0 0 2px #EAB308;
+    }
+
+    .thick-right { border-right: 2.5px solid var(--ink-main) !important; }
+    .thick-bottom { border-bottom: 2.5px solid var(--ink-main) !important; }
+
+    /* Carimbo Oficial Animado */
+    @keyframes stampSlam {
+      0% { transform: scale(2.4) rotate(-14deg); opacity: 0; }
+      65% { transform: scale(0.94) rotate(-6deg); opacity: 1; }
+      100% { transform: scale(1) rotate(-7deg); opacity: 1; }
+    }
+    .stamp-animated {
+      animation: stampSlam 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Stickers Animados */
+    @keyframes stickerWiggle {
+      0%, 100% { transform: rotate(-4deg) scale(1); }
+      50% { transform: rotate(4deg) scale(1.06); }
+    }
+    @keyframes stickerFloatPop {
+      0% { transform: translate(-50%, -25%) scale(0.35) rotate(-12deg); opacity: 0; }
+      22% { transform: translate(-50%, -62%) scale(1.2) rotate(5deg); opacity: 1; }
+      82% { transform: translate(-50%, -95%) scale(1.03) rotate(-3deg); opacity: 1; }
+      100% { transform: translate(-50%, -125%) scale(0.85) rotate(0deg); opacity: 0; }
+    }
+    .placed-sticker {
+      position: absolute;
+      z-index: 25;
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+      animation: stickerWiggle 2.2s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.32));
+    }
+    .sticker-reaction-fx {
+      position: fixed;
+      left: 50%;
+      top: 42%;
+      z-index: 60;
+      pointer-events: none;
+      animation: stickerFloatPop 1.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+  </style>
+</head>
+<body class="desk-backdrop flex flex-col items-center">
+
+  <!-- =====================================================================
+       1. MODAL DE CREDENCIAL LOCAL (ONBOARDING + CÂMERA + GALERIA + SVG)
+       ===================================================================== -->
+  <div id="profile-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl p-5 sm:p-6 dossier-sheet max-h-[92dvh] overflow-y-auto">
+      <div class="flex items-start justify-between border-b pb-3 mb-4" style="border-color: var(--border-ink);">
+        <div>
+          <span class="font-typewriter text-[11px] font-bold uppercase tracking-widest px-2 py-0.5 rounded text-white"
+            style="background: var(--accent-crimson);">
+            Divisão de Investigação
+          </span>
+          <h2 class="font-editorial text-2xl font-black mt-1">Credencial do Detetive</h2>
+        </div>
+        <button id="btn-close-profile" type="button" class="hidden text-xl font-bold px-2 py-1 rounded hover:opacity-75">✕</button>
+      </div>
+
+      <!-- Estatísticas do Detetive -->
+      <div class="grid grid-cols-3 gap-2 mb-4 p-2.5 rounded-xl dossier-card text-center">
+        <div>
+          <div class="text-[10px] uppercase opacity-75">Casos Resolvidos</div>
+          <div id="stat-solved" class="font-editorial text-xl font-black">0/90</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase opacity-75">Sequência</div>
+          <div id="stat-streak" class="font-editorial text-xl font-black">0🔥</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase opacity-75">Saldo</div>
+          <div id="stat-coins" class="font-typewriter text-base font-bold mt-0.5">40 🪙</div>
+        </div>
+      </div>
+
+      <!-- Preview do Avatar + Galeria + Câmera -->
+      <div class="flex flex-col items-center mb-4">
+        <div id="profile-avatar-preview"
+          class="w-24 h-24 rounded-full border-4 overflow-hidden flex items-center justify-center shadow-lg"
+          style="border-color: var(--accent-crimson); background: var(--paper-card);">
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2 mt-3">
+          <label class="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer dossier-card flex items-center gap-1.5 active:scale-95 transition">
+            <span>🖼️</span> Galeria
+            <input id="input-photo-upload" type="file" accept="image/*" class="hidden" />
+          </label>
+          <button id="btn-start-camera" type="button"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold dossier-card flex items-center gap-1.5 active:scale-95 transition">
+            <span>📷</span> Câmera
+          </button>
+        </div>
+      </div>
+
+      <!-- Câmera Ao Vivo -->
+      <div id="camera-box" class="hidden mb-4 p-3 rounded-xl bg-black border" style="border-color: var(--border-ink);">
+        <video id="camera-video" autoplay playsinline muted class="w-full h-44 object-cover rounded-lg bg-slate-950"></video>
+        <div class="flex gap-2 mt-2.5">
+          <button id="btn-snap-photo" type="button" class="flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white">
+            📸 Capturar Retrato
+          </button>
+          <button id="btn-switch-camera" type="button" class="px-3 py-2 rounded-lg font-bold text-xs bg-slate-700 text-white" title="Alternar Câmera">
+            🔄
+          </button>
+          <button id="btn-cancel-camera" type="button" class="px-3 py-2 rounded-lg font-bold text-xs bg-rose-800 text-white">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- 6 Avatares SVG + 3 VIP -->
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase mb-1.5 opacity-80">
+          Ou escolha um distintivo vetorial (6 + 3 VIP):
+        </label>
+        <div id="emblems-grid" class="grid grid-cols-5 gap-2"></div>
+      </div>
+
+      <!-- Codinome -->
+      <div class="mb-5">
+        <label for="input-player-name" class="block text-xs font-bold uppercase mb-1 opacity-80">
+          Codinome do Detetive
+        </label>
+        <input id="input-player-name" type="text" maxlength="20" placeholder="Ex: Inspetor Eder"
+          class="w-full px-3.5 py-2.5 rounded-xl font-bold text-base dossier-card focus:outline-none" />
+      </div>
+
+      <button id="btn-save-profile" type="button"
+        class="w-full py-3 rounded-xl font-editorial font-black text-sm uppercase tracking-wider text-white shadow-lg active:scale-95 transition"
+        style="background: var(--accent-crimson);">
+        Emitir Credencial e Investigar
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       2. INTERFACE PRINCIPAL DO DOSSIÊ NOIR
+       ===================================================================== -->
+  <div id="game-workspace" class="relative w-full max-w-2xl flex-1 flex flex-col sm:my-3 sm:rounded-2xl overflow-hidden dossier-sheet">
+
+    <!-- CABEÇALHO SUPERIOR -->
+    <header class="px-3 py-2.5 border-b flex items-center justify-between gap-2"
+      style="border-color: var(--border-ink); background: var(--paper-card);">
+      <button id="btn-open-profile" type="button" class="flex items-center gap-2 text-left min-w-0">
+        <div id="header-avatar"
+          class="w-10 h-10 rounded-full border-2 overflow-hidden flex items-center justify-center shrink-0"
+          style="border-color: var(--accent-crimson); background: var(--paper-bg);">
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1">
+            <span id="header-player-name" class="font-bold text-xs sm:text-sm truncate">Detetive</span>
+            <span class="text-[10px] underline opacity-75">ficha</span>
+          </div>
+          <div class="font-typewriter text-[11px] opacity-85 flex items-center gap-1.5">
+            <span>⏱️ <strong id="timer-display">00:00</strong></span>
+            <span>•</span>
+            <span>🔥 <strong id="header-streak">0</strong></span>
+            <span>•</span>
+            <span>✅ <strong id="header-solved">0/90</strong></span>
+          </div>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btn-open-store" type="button"
+          class="px-2.5 py-1.5 rounded-xl font-typewriter text-xs font-bold text-white flex items-center gap-1 shadow active:scale-95 transition"
+          style="background: var(--accent-crimson);">
+          <span>🏪 Loja</span>
+          <span>•</span>
+          <span>🪙 <span id="header-coins">40</span></span>
+        </button>
+
+        <button id="btn-cycle-theme" type="button" title="Alternar Tema Visual"
+          class="p-1.5 rounded-xl text-sm dossier-sheet active:scale-95 transition">
+          🎨
+        </button>
+
+        <button id="btn-toggle-sound" type="button" title="Alternar Som"
+          class="p-1.5 rounded-xl text-sm dossier-sheet active:scale-95 transition">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- BARRA DE CAMPANHA (90 CASOS + NÍVEIS + CASO DO DIA + TEMA) -->
+    <section class="px-3 py-2 border-b flex flex-wrap items-center justify-between gap-1.5 text-xs"
+      style="border-color: var(--border-ink);">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <select id="difficulty-select" aria-label="Nível de Dificuldade"
+          class="px-2.5 py-1.5 rounded-xl font-bold dossier-card cursor-pointer">
+          <option value="easy">Fácil (3×3)</option>
+          <option value="medium" selected>Médio (4×4)</option>
+          <option value="hard">Difícil (4×4×4)</option>
+        </select>
+
+        <button id="btn-open-cases" type="button"
+          class="px-2.5 py-1.5 rounded-xl font-bold dossier-card flex items-center gap-1 active:scale-95 transition">
+          <span>📂 90 Casos</span>
+          <span id="current-case-badge" class="font-typewriter font-bold opacity-80">#01</span>
+        </button>
+
+        <button id="btn-daily-case" type="button"
+          class="px-2.5 py-1.5 rounded-xl font-bold text-white active:scale-95 transition"
+          style="background: var(--accent-teal);">
+          📅 Caso do Dia (2×🪙)
+        </button>
+      </div>
+
+      <span id="active-theme-pill" class="px-2 py-1 rounded-lg text-[10px] font-bold dossier-card opacity-90">
+        📁 Dossiê Pulp
+      </span>
+    </section>
+
+    <!-- BARRA DE ARSENAL RÁPIDO (DICA, DETECTOR DE MENTIRA, CHAVE CRIPTOGRÁFICA) -->
+    <section class="px-3 py-1.5 border-b flex items-center justify-between gap-1.5 text-[11px]"
+      style="border-color: var(--border-ink); background: var(--paper-card);">
+      <button id="btn-use-hint" type="button"
+        class="flex-1 py-1.5 px-2 rounded-lg font-typewriter font-bold dossier-sheet flex items-center justify-center gap-1 active:scale-95 transition">
+        <span>💡 Dica</span>
+        <span id="badge-qty-hint" class="px-1.5 py-0.2 rounded text-white text-[10px]" style="background: var(--accent-crimson);">15🪙</span>
+      </button>
+
+      <button id="btn-use-lie" type="button"
+        class="flex-1 py-1.5 px-2 rounded-lg font-typewriter font-bold dossier-sheet flex items-center justify-center gap-1 active:scale-95 transition">
+        <span>🤥 Detector</span>
+        <span id="badge-qty-lie" class="px-1.5 py-0.2 rounded text-white text-[10px]" style="background: var(--accent-crimson);">25🪙</span>
+      </button>
+
+      <button id="btn-use-cipher" type="button"
+        class="flex-1 py-1.5 px-2 rounded-lg font-typewriter font-bold dossier-sheet flex items-center justify-center gap-1 active:scale-95 transition">
+        <span>🔓 Cifra</span>
+        <span id="badge-qty-cipher" class="px-1.5 py-0.2 rounded text-white text-[10px]" style="background: var(--accent-crimson);">20🪙</span>
+      </button>
+    </section>
+
+    <!-- NAVEGAÇÃO POR 4 ABAS (TOQUE OU SWIPE HORIZONTAL) -->
+    <nav class="grid grid-cols-4 border-b text-xs font-bold"
+      style="border-color: var(--border-ink); background: var(--paper-alt);">
+      <button type="button" data-tab="clues" class="tab-btn py-2.5 text-center border-b-2 transition">📋 Pistas</button>
+      <button type="button" data-tab="grid" class="tab-btn py-2.5 text-center border-b-2 transition">🧩 Grade</button>
+      <button type="button" data-tab="files" class="tab-btn py-2.5 text-center border-b-2 transition">🗂️ Fichas</button>
+      <button type="button" data-tab="accuse" class="tab-btn py-2.5 text-center border-b-2 transition">⚖️ Acusar</button>
+    </nav>
+
+    <!-- ÁREA PRINCIPAL DAS ABAS -->
+    <main id="tabs-swipe-area" class="flex-1 overflow-y-auto p-3 sm:p-4 pb-20">
+
+      <!-- ABA 1: PISTAS, DEPOIMENTOS & CIFRAS -->
+      <section id="tab-clues" class="tab-panel space-y-3">
+        <div class="p-3.5 rounded-xl dossier-card">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span id="case-tag" class="font-typewriter text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-white"
+              style="background: var(--accent-teal);">
+              ARQUIVO #01 • FÁCIL
+            </span>
+            <span id="case-reward-tag" class="font-typewriter text-xs font-bold" style="color: var(--accent-gold);">
+              Recompensa: +25 🪙
+            </span>
+          </div>
+          <h1 id="case-title" class="font-editorial text-xl sm:text-2xl font-black leading-tight">
+            O Mistério da Biblioteca
+          </h1>
+          <p id="case-narrative" class="text-xs sm:text-sm mt-1.5 leading-relaxed opacity-90"></p>
+        </div>
+
+        <!-- Lista de Pistas Lógicas -->
+        <div class="p-3.5 rounded-xl dossier-sheet">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-editorial text-base font-extrabold">🔎 Evidências & Pistas Lógicas</h2>
+            <span class="text-[10px] opacity-70">Toque p/ riscar</span>
+          </div>
+          <ul id="clues-list" class="space-y-2 text-xs sm:text-sm"></ul>
+        </div>
+
+        <!-- Bloco de Depoimentos (Médio & Difícil) -->
+        <div id="statements-card" class="hidden p-3.5 rounded-xl dossier-sheet">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h2 class="font-editorial text-base font-extrabold">🗣️ Interrogatórios</h2>
+            <span class="font-typewriter text-[10px] font-bold px-2 py-0.5 rounded text-white"
+              style="background: var(--accent-crimson);">
+              APENAS O CULPADO MENTE!
+            </span>
+          </div>
+          <div id="statements-list" class="space-y-2 text-xs sm:text-sm"></div>
+        </div>
+      </section>
+
+      <!-- ABA 2: GRADE LÓGICA TRIANGULAR -->
+      <section id="tab-grid" class="tab-panel hidden space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl dossier-card text-xs">
+          <button id="btn-toggle-autox" type="button"
+            class="px-2.5 py-1.5 rounded-lg font-bold text-white flex items-center gap-1 active:scale-95 transition"
+            style="background: var(--accent-teal);">
+            <span>⚡ Auto-X:</span>
+            <strong id="autox-label">ON</strong>
+          </button>
+
+          <div class="flex items-center gap-1.5">
+            <button id="btn-grid-undo" type="button"
+              class="px-2.5 py-1.5 rounded-lg font-bold dossier-sheet active:scale-95 transition">
+              ↩️ Desfazer
+            </button>
+            <button id="btn-grid-clear" type="button"
+              class="px-2.5 py-1.5 rounded-lg font-bold dossier-sheet active:scale-95 transition">
+              🧹 Limpar
+            </button>
+          </div>
+        </div>
+
+        <div class="text-[11px] opacity-80 text-center">
+          Toque simples: <strong>Vazio → ✗ → ✓</strong> • Toque duplo: <strong>✓ direto</strong>
+        </div>
+
+        <div id="logic-grid-container" class="overflow-x-auto rounded-xl dossier-sheet p-1.5"></div>
+      </section>
+
+      <!-- ABA 3: FICHAS DE SUSPEITOS, ARMAS, LOCAIS & MOTIVOS -->
+      <section id="tab-files" class="tab-panel hidden space-y-3">
+        <div id="dossier-files-container" class="space-y-3"></div>
+      </section>
+
+      <!-- ABA 4: ACUSAÇÃO OFICIAL & CARIMBO -->
+      <section id="tab-accuse" class="tab-panel hidden space-y-3">
+        <div class="p-4 rounded-xl dossier-card space-y-3">
+          <div class="border-b pb-2" style="border-color: var(--border-ink);">
+            <span class="font-typewriter text-[10px] font-bold uppercase tracking-widest opacity-75">
+              Relatório Final de Encerramento
+            </span>
+            <h2 class="font-editorial text-xl font-black">Formalizar Acusação</h2>
+          </div>
+
+          <div>
+            <label for="accuse-suspect" class="block text-xs font-bold uppercase mb-1">1. Quem cometeu o crime?</label>
+            <select id="accuse-suspect" class="w-full p-2.5 rounded-xl font-bold text-sm dossier-sheet"></select>
+          </div>
+
+          <div>
+            <label for="accuse-weapon" class="block text-xs font-bold uppercase mb-1">2. Qual arma foi utilizada?</label>
+            <select id="accuse-weapon" class="w-full p-2.5 rounded-xl font-bold text-sm dossier-sheet"></select>
+          </div>
+
+          <div>
+            <label for="accuse-location" class="block text-xs font-bold uppercase mb-1">3. Onde ocorreu o crime?</label>
+            <select id="accuse-location" class="w-full p-2.5 rounded-xl font-bold text-sm dossier-sheet"></select>
+          </div>
+
+          <div id="accuse-motive-wrap" class="hidden">
+            <label for="accuse-motive" class="block text-xs font-bold uppercase mb-1">4. Qual foi o motivo?</label>
+            <select id="accuse-motive" class="w-full p-2.5 rounded-xl font-bold text-sm dossier-sheet"></select>
+          </div>
+
+          <button id="btn-submit-accusation" type="button"
+            class="w-full py-3.5 rounded-xl font-editorial font-black text-base uppercase tracking-wider text-white shadow-lg active:scale-95 transition"
+            style="background: var(--accent-crimson);">
+            ⚖️ Bater Carimbo Oficial
+          </button>
+        </div>
+
+        <!-- Resultado da Acusação -->
+        <div id="accusation-result-box" class="hidden p-4 rounded-xl dossier-sheet text-center space-y-3"></div>
+      </section>
+    </main>
+
+    <!-- Camada de Stickers Colados no Dossiê -->
+    <div id="placed-stickers-layer" class="pointer-events-none absolute inset-0 overflow-hidden z-20"></div>
+
+    <!-- Botão Flutuante & Gaveta de Stickers Animados -->
+    <div class="fixed bottom-3 right-3 z-30 flex flex-col items-end gap-2">
+      <div id="sticker-drawer" class="hidden p-2.5 rounded-2xl dossier-sheet shadow-2xl max-w-[92vw]">
+        <div class="flex items-center justify-between gap-3 mb-2 px-1">
+          <span class="text-[10px] font-bold uppercase opacity-80">
+            Toque p/ reagir ou arraste p/ colar
+          </span>
+          <button id="btn-clear-stickers" type="button" class="text-[10px] underline opacity-80">
+            Limpar
+          </button>
+        </div>
+        <div id="sticker-palette" class="flex flex-wrap gap-1.5 justify-center"></div>
+      </div>
+
+      <button id="btn-toggle-stickers" type="button"
+        class="px-3.5 py-2 rounded-full font-bold text-xs text-white shadow-xl border border-white/30 flex items-center gap-1 active:scale-95 transition"
+        style="background: var(--accent-crimson);">
+        <span>🎭</span> Stickers
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       3. MODAL SELETOR DE 90 CASOS (30 POR NÍVEL)
+       ===================================================================== -->
+  <div id="cases-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-2xl p-5 dossier-sheet flex flex-col max-h-[88dvh]">
+      <div class="flex items-center justify-between border-b pb-3 mb-3" style="border-color: var(--border-ink);">
+        <div>
+          <span class="font-typewriter text-[10px] font-bold uppercase tracking-widest opacity-75">Arquivo Completo</span>
+          <h3 class="font-editorial text-2xl font-black">Campanha: 90 Enigmas</h3>
+        </div>
+        <button id="btn-close-cases" type="button" class="text-lg font-bold px-2 py-1">✕</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mb-3 text-xs font-bold">
+        <button type="button" data-case-diff="easy" class="case-diff-tab py-2 rounded-xl dossier-card">Fácil (30)</button>
+        <button type="button" data-case-diff="medium" class="case-diff-tab py-2 rounded-xl dossier-card">Médio (30)</button>
+        <button type="button" data-case-diff="hard" class="case-diff-tab py-2 rounded-xl dossier-card">Difícil (30)</button>
+      </div>
+
+      <div id="cases-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       4. MODAL LOJA & ARSENAL INVESTIGATIVO
+       ===================================================================== -->
+  <div id="store-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl p-5 dossier-sheet space-y-4 max-h-[90dvh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-2.5" style="border-color: var(--border-ink);">
+        <div>
+          <span class="font-typewriter text-[10px] uppercase tracking-widest opacity-75">Suprimentos & Temas</span>
+          <h3 class="font-editorial text-2xl font-black">Loja Investigativa</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 rounded-lg font-typewriter text-xs font-bold text-white" style="background: var(--accent-crimson);">
+            🪙 <span id="store-balance">40</span>
+          </span>
+          <button id="btn-close-store" type="button" class="text-lg font-bold px-2 py-1">✕</button>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-bold uppercase opacity-80 mb-2">🎒 Consumíveis de Investigação</h4>
+        <div id="store-consumables" class="space-y-2"></div>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-bold uppercase opacity-80 mb-2">🏛️ Temas & Melhorias Permanentes</h4>
+        <div id="store-permanents" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       5. MODAL DECODIFICADOR INTERATIVO DE CIFRA DE CÉSAR (MODO DIFÍCIL)
+       ===================================================================== -->
+  <div id="cipher-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl p-5 dossier-sheet space-y-4">
+      <div class="flex items-center justify-between border-b pb-2" style="border-color: var(--border-ink);">
+        <div>
+          <span class="font-typewriter text-[10px] uppercase tracking-widest opacity-75">Criptografia de Campo</span>
+          <h3 class="font-editorial text-xl font-black">Régua Decodificadora</h3>
+        </div>
+        <button id="btn-close-cipher" type="button" class="text-lg font-bold px-2 py-1">✕</button>
+      </div>
+
+      <div class="p-3 rounded-xl dossier-card">
+        <div class="text-[10px] uppercase font-bold opacity-70 mb-1">Mensagem Interceptada:</div>
+        <div id="cipher-encoded-text" class="font-typewriter text-xs sm:text-sm font-bold break-words"></div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between text-xs font-bold mb-1">
+          <span>Deslocamento da Régua (Cifra de César):</span>
+          <span id="cipher-shift-val" class="font-typewriter px-2 py-0.5 rounded text-white" style="background: var(--accent-teal);">0</span>
+        </div>
+        <input id="cipher-slider" type="range" min="0" max="25" value="0" class="w-full accent-rose-700 cursor-pointer" />
+      </div>
+
+      <div class="p-3 rounded-xl dossier-card">
+        <div class="text-[10px] uppercase font-bold opacity-70 mb-1">Texto Decodificado em Tempo Real:</div>
+        <div id="cipher-decoded-text" class="font-typewriter text-xs sm:text-sm font-bold break-words"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div id="toast-box"
+    class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden max-w-sm w-[92%] px-4 py-3 rounded-xl shadow-2xl border text-xs sm:text-sm font-semibold"
+    style="background: var(--paper-card); color: var(--ink-main); border-color: var(--accent-crimson);">
+  </div>
+
+  <!-- =====================================================================
+       6. MOTOR LÓGICO, GERADOR DE 90 CASOS, LOJA, STICKERS & ÁUDIO
+       ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ------------------------------------------------------------------
+         A. SAFESTORAGE (LOCALSTORAGE COM FALLBACK EM MEMÓRIA PARA SANDBOX)
+         ------------------------------------------------------------------ */
+      const SafeStorage = (() => {
+        const mem = {};
+        return {
+          get(k) {
+            try { return window.localStorage.getItem(k); }
+            catch (_) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null; }
+          },
+          set(k, v) {
+            try { window.localStorage.setItem(k, v); }
+            catch (_) { mem[k] = String(v); }
+          }
+        };
+      })();
+
+      /* ------------------------------------------------------------------
+         B. MANIFESTO PWA OFFLINE
+         ------------------------------------------------------------------ */
+      function setupPWA() {
+        try {
+          const manifest = {
+            name: 'Dossiê Noir: Detetive Dedutivo',
+            short_name: 'Dossiê Noir',
+            start_url: '.',
+            display: 'standalone',
+            background_color: '#231D18',
+            theme_color: '#B91C1C',
+            icons: [{
+              src: 'data:image/svg+xml;utf8,' + encodeURIComponent(
+                `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+                  <rect width="128" height="128" rx="28" fill="#231D18"/>
+                  <circle cx="56" cy="56" r="28" fill="none" stroke="#F5EFE0" stroke-width="10"/>
+                  <line x1="78" y1="78" x2="104" y2="104" stroke="#B91C1C" stroke-width="12" stroke-linecap="round"/>
+                </svg>`
+              ),
+              sizes: '128x128',
+              type: 'image/svg+xml'
+            }]
+          };
+          const el = document.getElementById('pwa-manifest');
+          if (el) {
+            el.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+          }
+        } catch (_) {}
+      }
+
+      /* ------------------------------------------------------------------
+         C. CONSTANTES: AVATARES SVG, TEMAS, LOJA, STICKERS E BANCO DE DADOS
+         ------------------------------------------------------------------ */
+      const KEY_PROFILE = 'dossie_noir_profile_v2';
+      const KEY_ECONOMY = 'dossie_noir_economy_v2';
+
+      const EMBLEMS = [
+        { id: 'loupe', vip: false, label: 'Lupa Noir', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><circle cx="28" cy="28" r="14" fill="none" stroke="#1F1A17" stroke-width="4.5"/><line x1="39" y1="39" x2="52" y2="52" stroke="#B91C1C" stroke-width="5.5" stroke-linecap="round"/></svg>` },
+        { id: 'fedora', vip: false, label: 'Chapéu Fedora', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><ellipse cx="32" cy="42" rx="24" ry="6" fill="#1F1A17"/><path d="M16 40 L21 20 Q32 16 43 20 L48 40 Z" fill="#3F342C"/><rect x="18" y="34" width="28" height="4" fill="#B91C1C"/></svg>` },
+        { id: 'fingerprint', vip: false, label: 'Impressão Digital', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><path d="M20 44 C18 30 24 18 32 18 C40 18 46 30 44 44 M25 46 C24 33 27 24 32 24 C37 24 40 33 39 46 M30 48 C30 38 31 30 32 30 C33 30 34 38 34 48" fill="none" stroke="#B91C1C" stroke-width="3.5" stroke-linecap="round"/></svg>` },
+        { id: 'camera', vip: false, label: 'Câmera Antiga', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><rect x="12" y="22" width="40" height="26" rx="5" fill="#1F1A17"/><rect x="24" y="15" width="16" height="7" rx="2" fill="#B45309"/><circle cx="32" cy="35" r="8" fill="#F5EFE0" stroke="#B91C1C" stroke-width="3"/></svg>` },
+        { id: 'badge', vip: false, label: 'Distintivo Dourado', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><polygon points="32,10 48,18 44,44 32,54 20,44 16,18" fill="#D97706" stroke="#78350F" stroke-width="3"/><polygon points="32,20 35,28 43,28 37,33 39,41 32,36 25,41 27,33 21,28 29,28" fill="#FEF3C7"/></svg>` },
+        { id: 'key', vip: false, label: 'Chave Mestra', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><circle cx="22" cy="32" r="10" fill="none" stroke="#B45309" stroke-width="4.5"/><path d="M32 32 H52 M44 32 V40 M50 32 V42" stroke="#1F1A17" stroke-width="4.5" stroke-linecap="round"/></svg>` },
+        { id: 'vip_owl', vip: true, label: 'Coruja Noturna (VIP)', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><circle cx="32" cy="32" r="22" fill="#1E1B4B" stroke="#FBBF24" stroke-width="3"/><text x="32" y="41" text-anchor="middle" font-size="25">🦉</text></svg>` },
+        { id: 'vip_agent', vip: true, label: 'Agente Secreto (VIP)', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><circle cx="32" cy="32" r="22" fill="#0F172A" stroke="#38BDF8" stroke-width="3"/><text x="32" y="41" text-anchor="middle" font-size="25">🕵️</text></svg>` },
+        { id: 'vip_crown', vip: true, label: 'Coroa Real (VIP)', svg: `<svg viewBox="0 0 64 64" class="w-9 h-9"><polygon points="10,46 14,20 26,32 32,14 38,32 50,20 54,46" fill="#EAB308" stroke="#713F12" stroke-width="3"/></svg>` }
+      ];
+
+      const THEMES = {
+        pulp: {
+          short: '📁 Dossiê Pulp',
+          name: '📁 Dossiê Pulp',
+          vars: {
+            '--bg-desk': '#231D18',
+            '--bg-desk-grad': '#342A21',
+            '--paper-bg': '#F5EFE0',
+            '--paper-card': '#EAE0CC',
+            '--paper-alt': '#DFD2B8',
+            '--ink-main': '#1F1A17',
+            '--ink-muted': '#5C4E42',
+            '--border-ink': '#B7A58A',
+            '--accent-crimson': '#B91C1C',
+            '--accent-teal': '#0F766E',
+            '--accent-gold': '#B45309',
+            '--grid-cell-bg': '#FAF6EC',
+            '--grid-hover': '#EFE5D1'
+          }
+        },
+        noir: {
+          short: '🎬 Noir 1940',
+          name: '🎬 Noir 1940',
+          vars: {
+            '--bg-desk': '#09090B',
+            '--bg-desk-grad': '#18181B',
+            '--paper-bg': '#141417',
+            '--paper-card': '#1F1F24',
+            '--paper-alt': '#27272E',
+            '--ink-main': '#F4F4F5',
+            '--ink-muted': '#A1A1AA',
+            '--border-ink': '#3F3F46',
+            '--accent-crimson': '#EF4444',
+            '--accent-teal': '#14B8A6',
+            '--accent-gold': '#F59E0B',
+            '--grid-cell-bg': '#18181C',
+            '--grid-hover': '#27272F'
+          }
+        },
+        forensic: {
+          short: '🔬 Lab Forense',
+          name: '🔬 Lab Forense',
+          vars: {
+            '--bg-desk': '#040914',
+            '--bg-desk-grad': '#0B172A',
+            '--paper-bg': '#081221',
+            '--paper-card': '#0F1E36',
+            '--paper-alt': '#162A4A',
+            '--ink-main': '#E0F2FE',
+            '--ink-muted': '#7DD3FC',
+            '--border-ink': '#1E3A5F',
+            '--accent-crimson': '#F43F5E',
+            '--accent-teal': '#06B6D4',
+            '--accent-gold': '#FBBF24',
+            '--grid-cell-bg': '#0C182B',
+            '--grid-hover': '#152845'
+          }
+        },
+        notebook: {
+          short: '📓 Caderno',
+          name: '📓 Caderno de Campo',
+          vars: {
+            '--bg-desk': '#CBD5E1',
+            '--bg-desk-grad': '#E2E8F0',
+            '--paper-bg': '#FFFFFF',
+            '--paper-card': '#F1F5F9',
+            '--paper-alt': '#E2E8F0',
+            '--ink-main': '#0F172A',
+            '--ink-muted': '#475569',
+            '--border-ink': '#94A3B8',
+            '--accent-crimson': '#DC2626',
+            '--accent-teal': '#0284C7',
+            '--accent-gold': '#D97706',
+            '--grid-cell-bg': '#F8FAFC',
+            '--grid-hover': '#E2E8F0'
+          }
+        }
+      };
+
+      const STORE_CONSUMABLES = [
+        { id: 'hint', title: '💡 Dica Extra', desc: 'Deduz e marca automaticamente uma confirmação (✓) verdadeira na grade.', price: 15 },
+        { id: 'lie', title: '🤥 Detector de Mentira', desc: 'Revela e destaca na hora quem está mentindo nos depoimentos (Médio/Difícil).', price: 25 },
+        { id: 'cipher', title: '🔓 Chave Criptográfica', desc: 'Decodifica instantaneamente todas as pistas cifradas do caso (Difícil).', price: 20 }
+      ];
+
+      const STORE_PERMANENTS = [
+        { id: 'theme_notebook', type: 'theme', themeKey: 'notebook', title: '📓 Tema Caderno de Campo', desc: 'Visual diurno limpo de altíssima legibilidade.', price: 30 },
+        { id: 'theme_noir', type: 'theme', themeKey: 'noir', title: '🎬 Tema Noir 1940', desc: 'Estética cinematográfica sombria com destaques em carmim.', price: 35 },
+        { id: 'theme_forensic', type: 'theme', themeKey: 'forensic', title: '🔬 Tema Lab Forense', desc: 'Visor noturno OLED com grade investigativa em ciano.', price: 45 },
+        { id: 'vip_emblems', type: 'upgrade', title: '👑 Pacote Emblemas VIP', desc: 'Libera 3 distintivos exclusivos: Coruja Noturna, Agente Secreto e Coroa.', price: 40 },
+        { id: 'gold_frame', type: 'upgrade', title: '✨ Moldura Dourada', desc: 'Aro dourado luminoso ao redor do seu avatar.', price: 60 },
+        { id: 'double_coins', type: 'upgrade', title: '🍀 Amuleto 2× Moedas', desc: 'Dobra permanentemente todas as moedas ganhas ao resolver casos!', price: 90 }
+      ];
+
+      const STICKERS = [
+        { id: 'clue', emoji: '🔍', label: 'Pista!', bg: '#FEF3C7', color: '#92400E', border: '#D97706' },
+        { id: 'suspect', emoji: '🚨', label: 'Suspeito!', bg: '#FEE2E2', color: '#991B1B', border: '#DC2626' },
+        { id: 'lie', emoji: '🤥', label: 'Mentira!', bg: '#FCE7F3', color: '#9D174D', border: '#DB2777' },
+        { id: 'eureka', emoji: '💡', label: 'Eureka!', bg: '#DCFCE7', color: '#166534', border: '#16A34A' },
+        { id: 'alibi', emoji: '📌', label: 'Álibi', bg: '#E0F2FE', color: '#075985', border: '#0284C7' },
+        { id: 'trail', emoji: '👣', label: 'Rastro', bg: '#F3E8FF', color: '#6B21A8', border: '#9333EA' },
+        { id: 'guilty', emoji: '⚖️', label: 'Culpado!', bg: '#1F1A17', color: '#FDE68A', border: '#D97706' }
+      ];
+
+      // Banco de Entidades com Atributos Ricos para Pistas Cruzadas
+      const SUSPECTS_POOL = [
+        { name: 'Condessa Rubi', icon: '💃', sign: 'Escorpião', height: 'Alta (1,78m)', hand: 'Canhota', trait: 'Colecionadora de arte rara' },
+        { name: 'Almirante Cobalto', icon: '⚓', sign: 'Capricórnio', height: 'Alto (1,84m)', hand: 'Destro', trait: 'Ex-comandante naval rigoroso' },
+        { name: 'Chef Açafrão', icon: '👨‍🍳', sign: 'Touro', height: 'Médio (1,70m)', hand: 'Destro', trait: 'Especialista em especiarias exóticas' },
+        { name: 'Mestre Obsidiana', icon: '🎩', sign: 'Aquário', height: 'Baixo (1,63m)', hand: 'Canhoto', trait: 'Ilusionista e relojoeiro' },
+        { name: 'Doutora Esmeralda', icon: '🧪', sign: 'Virgem', height: 'Média (1,68m)', hand: 'Canhota', trait: 'Botânica e toxicologista' },
+        { name: 'Barão Âmbar', icon: '🧐', sign: 'Leão', height: 'Alto (1,81m)', hand: 'Destro', trait: 'Magnata das ferrovias' }
+      ];
+
+      const WEAPONS_POOL = [
+        { name: 'Candelabro de Prata', icon: '🕯️', weight: 'Pesada (3,2kg)', material: 'Prata maciça' },
+        { name: 'Frasco de Veneno', icon: '⚗️', weight: 'Leve (0,2kg)', material: 'Vidro soprado' },
+        { name: 'Adaga Antiga', icon: '🗡️', weight: 'Média (0,9kg)', material: 'Aço damasco' },
+        { name: 'Estatueta de Mármore', icon: '🗿', weight: 'Pesada (4,1kg)', material: 'Mármore carrara' },
+        { name: 'Cachecol de Seda', icon: '🧣', weight: 'Leve (0,1kg)', material: 'Seda pura' },
+        { name: 'Chave Inglesa', icon: '🔧', weight: 'Média (1,4kg)', material: 'Ferro forjado' }
+      ];
+
+      const LOCATIONS_POOL = [
+        { name: 'Biblioteca', icon: '📚', env: 'Ambiente Interno', floor: '2º Andar' },
+        { name: 'Jardim de Inverno', icon: '🌿', env: 'Ambiente Externo', floor: 'Térreo' },
+        { name: 'Adega Subterrânea', icon: '🍷', env: 'Ambiente Interno', floor: 'Subsolo' },
+        { name: 'Observatório', icon: '🔭', env: 'Ambiente Externo', floor: 'Terraço' },
+        { name: 'Salão de Baile', icon: '🎻', env: 'Ambiente Interno', floor: '1º Andar' },
+        { name: 'Píer Privativo', icon: '🚤', env: 'Ambiente Externo', floor: 'Doca' }
+      ];
+
+      const MOTIVES_POOL = [
+        { name: 'Herança Secreta', icon: '📜', category: 'Financeiro' },
+        { name: 'Chantagem Antiga', icon: '✉️', category: 'Pessoal' },
+        { name: 'Roubo de Relíquia', icon: '💎', category: 'Cobiça' },
+        { name: 'Vingança Familiar', icon: '🔥', category: 'Passional' },
+        { name: 'Espionagem Industrial', icon: '💼', category: 'Corporativo' }
+      ];
+
+      const CASE_TITLES_PREFIX = [
+        'O Enigma', 'A Sombra', 'O Segredo', 'O Mistério', 'A Conspiração',
+        'O Caso', 'A Tragédia', 'O Dossiê', 'O Álibi', 'A Cilada'
+      ];
+      const CASE_TITLES_SUFFIX = [
+        'da Meia-Noite', 'do Expresso Norte', 'da Mansão Blackwood', 'do Teatro Ópera',
+        'do Museu Imperial', 'da Torre do Relógio', 'do Cassino Riviera', 'da Ilha Neblina',
+        'do Cofre Selado', 'do Último Trem'
+      ];
+
+      /* ------------------------------------------------------------------
+         D. MOTOR DE ÁUDIO PROCEDURAL (WEB AUDIO API)
+         ------------------------------------------------------------------ */
+      class NoirAudio {
+        constructor() {
+          this.ctx = null;
+          this.muted = false;
+        }
+        init() {
+          try {
+            if (!this.ctx) {
+              const AC = window.AudioContext || window.webkitAudioContext;
+              if (AC) this.ctx = new AC();
+            }
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          } catch (_) {}
+        }
+        play(type) {
+          if (this.muted) return;
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const now = this.ctx.currentTime;
+            if (type === 'scratch') {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(340, now);
+              osc.frequency.exponentialRampToValueAtTime(160, now + 0.055);
+              g.gain.setValueAtTime(0.08, now);
+              g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+              osc.connect(g); g.connect(this.ctx.destination);
+              osc.start(now); osc.stop(now + 0.065);
+            } else if (type === 'confirm') {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(587.33, now);
+              osc.frequency.exponentialRampToValueAtTime(880, now + 0.09);
+              g.gain.setValueAtTime(0.11, now);
+              g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+              osc.connect(g); g.connect(this.ctx.destination);
+              osc.start(now); osc.stop(now + 0.11);
+            } else if (type === 'stamp') {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = 'sawtooth';
+              osc.frequency.setValueAtTime(150, now);
+              osc.frequency.exponentialRampToValueAtTime(48, now + 0.14);
+              g.gain.setValueAtTime(0.22, now);
+              g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+              osc.connect(g); g.connect(this.ctx.destination);
+              osc.start(now); osc.stop(now + 0.16);
+            } else if (type === 'coin') {
+              [987.77, 1318.51].forEach((f, i) => {
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, now + i * 0.07);
+                g.gain.setValueAtTime(0.09, now + i * 0.07);
+                g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.22);
+                osc.connect(g); g.connect(this.ctx.destination);
+                osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.24);
+              });
+            } else if (type === 'win') {
+              [261.63, 311.13, 392.00, 493.88].forEach((f, i) => {
+                const osc = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(f, now + i * 0.09);
+                g.gain.setValueAtTime(0.11, now + i * 0.09);
+                g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.45);
+                osc.connect(g); g.connect(this.ctx.destination);
+                osc.start(now + i * 0.09); osc.stop(now + i * 0.09 + 0.48);
+              });
+            } else if (type === 'error') {
+              const osc = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              osc.type = 'sawtooth';
+              osc.frequency.setValueAtTime(175, now);
+              osc.frequency.linearRampToValueAtTime(115, now + 0.24);
+              g.gain.setValueAtTime(0.12, now);
+              g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+              osc.connect(g); g.connect(this.ctx.destination);
+              osc.start(now); osc.stop(now + 0.26);
+            }
+          } catch (_) {}
+        }
+      }
+      const audio = new NoirAudio();
+
+      /* ------------------------------------------------------------------
+         E. ESTADO GLOBAL DO JOGO
+         ------------------------------------------------------------------ */
+      const state = {
+        profile: null,
+        economy: {
+          coins: 40,
+          streak: 0,
+          solvedCases: {}, // ex: { 'easy_1': true, 'medium_4': true }
+          unlocked: ['theme_pulp'],
+          activeTheme: 'pulp',
+          inventory: { hint: 1, lie: 0, cipher: 0 }
+        },
+        difficulty: 'medium', // 'easy' | 'medium' | 'hard'
+        caseNumber: 1,        // 1..30
+        isDaily: false,
+        modalCaseDiff: 'medium',
+        activeTab: 'clues',
+        autoX: true,
+        currentCase: null,
+        gridMarks: {},        // chave 'catA:idxA|catB:idxB' -> 0 (vazio), 1 (✗), 2 (✓)
+        hintedCells: new Set(),
+        gridHistory: [],
+        crossedClues: new Set(),
+        lieRevealed: false,
+        ciphersUnlocked: false,
+        caseSolvedNow: false,
+        elapsedSec: 0,
+        timerId: null
+      };
+
+      /* ------------------------------------------------------------------
+         F. GERADOR DETERMINÍSTICO DE CASOS (90 ENIGMAS + CASO DO DIA)
+         ------------------------------------------------------------------ */
+      function createRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function () {
+          h += h << 13; h ^= h >>> 7; h += h << 3; h ^= h >>> 17; h += h << 5;
+          return ((h >>> 0) / 4294967296);
+        };
+      }
+
+      function shuffleRng(arr, rng) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
+      }
+
+      function caesarCipher(str, shift) {
+        const s = ((shift % 26) + 26) % 26;
+        return str.replace(/[A-Za-z]/g, ch => {
+          const base = ch <= 'Z' ? 65 : 97;
+          return String.fromCharCode(((ch.charCodeAt(0) - base + s) % 26) + base);
+        });
+      }
+
+      function getCaseTitle(diff, num) {
+        const pIdx = (num * 3 + (diff === 'easy' ? 0 : diff === 'medium' ? 1 : 2)) % CASE_TITLES_PREFIX.length;
+        const sIdx = (num * 7 + (diff === 'easy' ? 1 : diff === 'medium' ? 4 : 8)) % CASE_TITLES_SUFFIX.length;
+        return `${CASE_TITLES_PREFIX[pIdx]} ${CASE_TITLES_SUFFIX[sIdx]}`;
+      }
+
+      function generateCase() {
+        const diff = state.isDaily ? 'medium' : state.difficulty;
+        const size = diff === 'easy' ? 3 : 4;
+        const hasMotives = diff === 'hard';
+        const today = new Date().toISOString().slice(0, 10);
+
+        const seed = state.isDaily
+          ? `DOSSIE_NOIR_DAILY_${today}`
+          : `DOSSIE_NOIR_${diff.toUpperCase()}_CASE_${state.caseNumber}`;
+        const rng = createRng(seed);
+
+        const suspects = shuffleRng(SUSPECTS_POOL, rng).slice(0, size);
+        const weapons = shuffleRng(WEAPONS_POOL, rng).slice(0, size);
+        const locations = shuffleRng(LOCATIONS_POOL, rng).slice(0, size);
+        const motives = hasMotives ? shuffleRng(MOTIVES_POOL, rng).slice(0, size) : [];
+
+        // Solução verdadeira: índice i de suspects corresponde a weaponPerm[i], locPerm[i], motivePerm[i]
+        const weaponPerm = shuffleRng(Array.from({ length: size }, (_, i) => i), rng);
+        const locPerm = shuffleRng(Array.from({ length: size }, (_, i) => i), rng);
+        const motivePerm = hasMotives ? shuffleRng(Array.from({ length: size }, (_, i) => i), rng) : [];
+
+        const culpritIdx = Math.floor(rng() * size);
+        const solution = {
+          culpritIdx,
+          suspectName: suspects[culpritIdx].name,
+          weaponName: weapons[weaponPerm[culpritIdx]].name,
+          locationName: locations[locPerm[culpritIdx]].name,
+          motiveName: hasMotives ? motives[motivePerm[culpritIdx]].name : null,
+          weaponPerm,
+          locPerm,
+          motivePerm
+        };
+
+        // Geração de Pistas Lógicas Solúveis
+        const clues = [];
+        const usedTexts = new Set();
+
+        function addClue(text, cipherShift = 0) {
+          if (usedTexts.has(text)) return;
+          usedTexts.add(text);
+          clues.push({
+            text,
+            cipherShift,
+            encodedText: cipherShift > 0 ? caesarCipher(text, cipherShift) : text
+          });
+        }
+
+        // Pistas de ligação direta e eliminação cruzada garantindo determinação completa
+        for (let i = 0; i < size; i++) {
+          const s = suspects[i];
+          const w = weapons[weaponPerm[i]];
+          const l = locations[locPerm[i]];
+
+          if (i === 0) {
+            addClue(`${s.icon} ${s.name} foi visto(a) entrando em ${l.icon} ${l.name} (${l.env}).`);
+          } else if (i === 1) {
+            addClue(`A pessoa que estava com ${w.icon} ${w.name} (${w.weight}) esteve em ${l.icon} ${l.name}.`);
+          } else if (i === 2) {
+            const wrongLoc = locations[(locPerm[i] + 1) % size];
+            addClue(`${s.icon} ${s.name} (${s.hand}) nunca esteve em ${wrongLoc.icon} ${wrongLoc.name}.`);
+            addClue(`Quem portava ${w.icon} ${w.name} tem signo de ${s.sign}.`);
+          } else if (i === 3) {
+            const wrongWep = weapons[(weaponPerm[i] + 1) % size];
+            addClue(`${s.icon} ${s.name} não tocou em ${wrongWep.icon} ${wrongWep.name}.`);
+            addClue(`Em ${l.icon} ${l.name} foi encontrada uma pista ligada a ${w.icon} ${w.name}.`);
+          }
+
+          if (hasMotives) {
+            const m = motives[motivePerm[i]];
+            if (i === 0) {
+              addClue(`O motivo "${m.icon} ${m.name}" está diretamente ligado a ${s.icon} ${s.name}.`);
+            } else if (i === 1) {
+              const shift = 3 + Math.floor(rng() * 9);
+              addClue(`Quem agiu por ${m.name} usou ${w.name}.`, shift);
+            } else if (i === 2) {
+              const shift = 4 + Math.floor(rng() * 8);
+              addClue(`O plano de ${m.name} ocorreu em ${l.name}.`, shift);
+            }
+          }
+        }
+
+        // Pista extra de cruzamento para facilitar dedução sem chute
+        const extraIdx = (culpritIdx + 1) % size;
+        const extraS = suspects[extraIdx];
+        const extraW = weapons[weaponPerm[extraIdx]];
+        addClue(`Registros forenses confirmam que ${extraS.icon} ${extraS.name} manuseou ${extraW.icon} ${extraW.name}.`);
+
+        // Depoimentos para Médio e Difícil (Inocentes falam a verdade, Culpado mente!)
+        const statements = [];
+        if (diff === 'medium' || diff === 'hard') {
+          for (let i = 0; i < size; i++) {
+            const s = suspects[i];
+            const isLiar = (i === culpritIdx);
+            if (!isLiar) {
+              // Fala uma verdade sobre si ou outro
+              const trueLoc = locations[locPerm[i]];
+              const otherIdx = (i + 1) % size;
+              const otherWep = weapons[weaponPerm[otherIdx]];
+              const text = (i % 2 === 0)
+                ? `"Eu passei a noite inteira em ${trueLoc.icon} ${trueLoc.name}, pode verificar."`
+                : `"Vi ${suspects[otherIdx].name} segurando ${otherWep.icon} ${otherWep.name} mais cedo."`;
+              statements.push({ suspect: s, text, isLiar: false });
+            } else {
+              // O culpado conta uma mentira verificável
+              const fakeLoc = locations[(locPerm[i] + 1) % size];
+              statements.push({
+                suspect: s,
+                text: `"Eu nem sequer cheguei perto de ${fakeLoc.icon} ${fakeLoc.name} hoje!"`,
+                isLiar: true
+              });
+            }
+          }
+        }
+
+        const title = state.isDaily
+          ? `Caso Especial do Dia (${today})`
+          : getCaseTitle(diff, state.caseNumber);
+
+        const narrative = `Um crime intrigante abalou ${locations[locPerm[culpritIdx]].name}. Entre os ${size} suspeitos presentes no local, apenas um agiu com ${weapons[weaponPerm[culpritIdx]].material.toLowerCase()}. Cruze as pistas${diff !== 'easy' ? ', desmascare quem está mentindo nos interrogatórios' : ''} e preencha a grade lógica antes de bater o carimbo!`;
+
+        state.currentCase = {
+          id: state.isDaily ? `daily_${today}` : `${diff}_${state.caseNumber}`,
+          diff,
+          size,
+          hasMotives,
+          title,
+          narrative,
+          suspects,
+          weapons,
+          locations,
+          motives,
+          clues: shuffleRng(clues, rng),
+          statements: shuffleRng(statements, rng),
+          solution
+        };
+
+        // Reseta estado da investigação
+        state.gridMarks = {};
+        state.hintedCells = new Set();
+        state.gridHistory = [];
+        state.crossedClues = new Set();
+        state.lieRevealed = false;
+        state.ciphersUnlocked = false;
+        state.caseSolvedNow = false;
+
+        // Reinicia cronômetro
+        if (state.timerId) clearInterval(state.timerId);
+        state.elapsedSec = 0;
+        updateTimerUI();
+        state.timerId = setInterval(() => {
+          if (state.caseSolvedNow) return;
+          state.elapsedSec++;
+          updateTimerUI();
+        }, 1000);
+
+        renderAllCaseViews();
+      }
+
+      function updateTimerUI() {
+        const m = String(Math.floor(state.elapsedSec / 60)).padStart(2, '0');
+        const s = String(state.elapsedSec % 60).padStart(2, '0');
+        const el = document.getElementById('timer-display');
+        if (el) el.textContent = `${m}:${s}`;
+      }
+
+      /* ------------------------------------------------------------------
+         G. RENDERIZAÇÃO DAS 4 ABAS (PISTAS, GRADE TRIANGULAR, FICHAS, ACUSAR)
+         ------------------------------------------------------------------ */
+      function renderAllCaseViews() {
+        const c = state.currentCase;
+        if (!c) return;
+
+        // Badges superiores
+        document.getElementById('current-case-badge').textContent = state.isDaily
+          ? 'DIÁRIO'
+          : `#${String(state.caseNumber).padStart(2, '0')}`;
+
+        const diffLabel = c.diff === 'easy' ? 'FÁCIL' : c.diff === 'medium' ? 'MÉDIO' : 'DIFÍCIL';
+        document.getElementById('case-tag').textContent = state.isDaily
+          ? `EDIÇÃO ESPECIAL • ${diffLabel}`
+          : `ARQUIVO #${String(state.caseNumber).padStart(2, '0')} • ${diffLabel}`;
+
+        const baseReward = state.isDaily ? 60 : (c.diff === 'easy' ? 20 : c.diff === 'medium' ? 35 : 50);
+        const mult = state.economy.unlocked.includes('double_coins') ? 2 : 1;
+        document.getElementById('case-reward-tag').textContent = `Recompensa: +${baseReward * mult} 🪙`;
+
+        document.getElementById('case-title').textContent = c.title;
+        document.getElementById('case-narrative').textContent = c.narrative;
+
+        renderCluesAndStatements();
+        renderLogicGrid();
+        renderDossierFiles();
+        renderAccusationForm();
+      }
+
+      function renderCluesAndStatements() {
+        const c = state.currentCase;
+        const list = document.getElementById('clues-list');
+        list.innerHTML = '';
+
+        c.clues.forEach((clue, idx) => {
+          const isEncrypted = clue.cipherShift > 0 && !state.ciphersUnlocked;
+          const isCrossed = state.crossedClues.has(idx);
+
+          const li = document.createElement('li');
+          li.className = `p-2.5 rounded-xl dossier-card flex items-start justify-between gap-2 cursor-pointer transition ${isCrossed ? 'opacity-45 line-through' : ''}`;
+
+          const textSpan = document.createElement('span');
+          textSpan.className = isEncrypted ? 'font-typewriter text-amber-800 dark:text-amber-300 font-bold' : '';
+          textSpan.textContent = isEncrypted ? `🔒 [CIFRADO] ${clue.encodedText}` : `• ${clue.text}`;
+
+          li.appendChild(textSpan);
+
+          if (isEncrypted) {
+            const decBtn = document.createElement('button');
+            decBtn.type = 'button';
+            decBtn.className = 'shrink-0 px-2 py-1 rounded-lg font-typewriter text-[10px] font-bold text-white active:scale-95 transition';
+            decBtn.style.background = 'var(--accent-teal)';
+            decBtn.textContent = '🔓 Decifrar';
+            decBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              openCipherModal(clue.encodedText);
+            });
+            li.appendChild(decBtn);
+          }
+
+          li.addEventListener('click', () => {
+            if (state.crossedClues.has(idx)) state.crossedClues.delete(idx);
+            else state.crossedClues.add(idx);
+            audio.play('scratch');
+            renderCluesAndStatements();
+          });
+
+          list.appendChild(li);
+        });
+
+        // Depoimentos (Médio e Difícil)
+        const stCard = document.getElementById('statements-card');
+        const stList = document.getElementById('statements-list');
+        if (c.statements.length === 0) {
+          stCard.classList.add('hidden');
+        } else {
+          stCard.classList.remove('hidden');
+          stList.innerHTML = '';
+          c.statements.forEach(st => {
+            const box = document.createElement('div');
+            const showLieAlert = state.lieRevealed && st.isLiar;
+            box.className = `p-2.5 rounded-xl dossier-card ${showLieAlert ? 'ring-2 ring-rose-600 bg-rose-950/15' : ''}`;
+            box.innerHTML = `
+              <div class="flex items-center justify-between font-bold text-xs mb-0.5">
+                <span>${st.suspect.icon} ${st.suspect.name}</span>
+                ${showLieAlert ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-600 text-white font-typewriter">🤥 MENTIRA DETECTADA!</span>' : ''}
+              </div>
+              <div class="italic opacity-90">${st.text}</div>
+            `;
+            stList.appendChild(box);
+          });
+        }
+      }
+
+      /* ------------------------------------------------------------------
+         GRADE LÓGICA TRIANGULAR (SUSPEITOS × LOCAIS, ARMAS, MOTIVOS)
+         ------------------------------------------------------------------ */
+      function normalizePairKey(cat1, i1, cat2, i2) {
+        if (cat1 < cat2) return `${cat1}:${i1}|${cat2}:${i2}`;
+        return `${cat2}:${i2}|${cat1}:${i1}`;
+      }
+
+      function renderLogicGrid() {
+        const c = state.currentCase;
+        const container = document.getElementById('logic-grid-container');
+        const N = c.size;
+
+        // Categorias superiores: Locais, Armas, (e Motivos no Difícil)
+        // Categorias laterais: Suspeitos, (Motivos no Difícil), Armas
+        const topCats = [
+          { key: 'loc', label: 'Locais', items: c.locations },
+          { key: 'wep', label: 'Armas', items: c.weapons }
+        ];
+        if (c.hasMotives) {
+          topCats.push({ key: 'mot', label: 'Motivos', items: c.motives });
+        }
+
+        const leftCats = [
+          { key: 'sus', label: 'Suspeitos', items: c.suspects }
+        ];
+        if (c.hasMotives) {
+          leftCats.push({ key: 'mot', label: 'Motivos', items: c.motives });
+        }
+        leftCats.push({ key: 'wep', label: 'Armas', items: c.weapons });
+
+        let html = `<table class="logic-table"><thead>`;
+        // Linha 1: Super-cabeçalhos de Categorias
+        html += `<tr><th colspan="2" rowspan="2" class="logic-cat-header thick-right thick-bottom">Grade<br>Lógica</th>`;
+        topCats.forEach((tc, idx) => {
+          const isLast = idx === topCats.length - 1;
+          html += `<th colspan="${N}" class="logic-cat-header thick-bottom ${!isLast ? 'thick-right' : ''}">${tc.label}</th>`;
+        });
+        html += `</tr>`;
+
+        // Linha 2: Ícones e Nomes Verticais das Colunas
+        html += `<tr>`;
+        topCats.forEach((tc, tIdx) => {
+          tc.items.forEach((item, iIdx) => {
+            const isBlockEnd = (iIdx === N - 1) && (tIdx < topCats.length - 1);
+            const shortName = item.name.split(' ')[0];
+            html += `<th class="logic-col-header thick-bottom ${isBlockEnd ? 'thick-right' : ''}" title="${item.name}">
+              <div class="text-sm mb-0.5">${item.icon}</div>
+              <div>${shortName}</div>
+            </th>`;
+          });
+        });
+        html += `</tr></thead><tbody>`;
+
+        // Linhas da Grade Triangular
+        leftCats.forEach((lc, lIdx) => {
+          // Quantos blocos superiores são válidos para esta linha (formato triangular)
+          const validTopCount = topCats.length - lIdx;
+          if (validTopCount <= 0) return;
+
+          lc.items.forEach((item, rIdx) => {
+            const isRowBlockEnd = (rIdx === N - 1);
+            html += `<tr>`;
+            if (rIdx === 0) {
+              html += `<th rowspan="${N}" class="logic-cat-header thick-bottom" style="width: 24px; writing-mode: vertical-rl; transform: rotate(180deg);">${lc.label}</th>`;
+            }
+            html += `<th class="logic-row-header thick-right ${isRowBlockEnd ? 'thick-bottom' : ''}" style="width: 96px;" title="${item.name}">
+              ${item.icon} ${item.name}
+            </th>`;
+
+            for (let tIdx = 0; tIdx < validTopCount; tIdx++) {
+              const tc = topCats[tIdx];
+              for (let cIdx = 0; cIdx < N; cIdx++) {
+                const pairKey = normalizePairKey(lc.key, rIdx, tc.key, cIdx);
+                const val = state.gridMarks[pairKey] || 0;
+                const isColBlockEnd = (cIdx === N - 1) && (tIdx < validTopCount - 1);
+                const hinted = state.hintedCells.has(pairKey) ? 'cell-hinted' : '';
+                const markClass = val === 1 ? 'mark-no' : val === 2 ? 'mark-yes' : '';
+                const symbol = val === 1 ? '✗' : val === 2 ? '✓' : '';
+
+                html += `<td class="logic-cell ${markClass} ${hinted} ${isColBlockEnd ? 'thick-right' : ''} ${isRowBlockEnd ? 'thick-bottom' : ''}"
+                  data-cat1="${lc.key}" data-i1="${rIdx}" data-cat2="${tc.key}" data-i2="${cIdx}">
+                  ${symbol}
+                </td>`;
+              }
+            }
+            html += `</tr>`;
+          });
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+        // Eventos de clique e toque duplo nas células
+        let lastCellKey = '';
+        let lastTapTime = 0;
+
+        container.querySelectorAll('.logic-cell').forEach(td => {
+          td.addEventListener('click', () => {
+            const cat1 = td.dataset.cat1;
+            const i1 = parseInt(td.dataset.i1, 10);
+            const cat2 = td.dataset.cat2;
+            const i2 = parseInt(td.dataset.i2, 10);
+            const key = normalizePairKey(cat1, i1, cat2, i2);
+
+            const now = Date.now();
+            const isDouble = (key === lastCellKey && now - lastTapTime < 280);
+            lastCellKey = key;
+            lastTapTime = now;
+
+            state.gridHistory.push({ ...state.gridMarks });
+            if (state.gridHistory.length > 40) state.gridHistory.shift();
+
+            const cur = state.gridMarks[key] || 0;
+            const nextVal = isDouble ? (cur === 2 ? 0 : 2) : ((cur + 1) % 3);
+            setGridMark(cat1, i1, cat2, i2, nextVal);
+            renderLogicGrid();
+          });
+        });
+      }
+
+      function setGridMark(cat1, i1, cat2, i2, val) {
+        const key = normalizePairKey(cat1, i1, cat2, i2);
+        if (val === 0) delete state.gridMarks[key];
+        else state.gridMarks[key] = val;
+
+        if (val === 1) audio.play('scratch');
+        else if (val === 2) {
+          audio.play('confirm');
+          // Auto-X: descarta automaticamente as outras células da mesma linha/coluna da sub-grade
+          if (state.autoX && state.currentCase) {
+            const N = state.currentCase.size;
+            for (let k = 0; k < N; k++) {
+              if (k !== i2) {
+                const kRow = normalizePairKey(cat1, i1, cat2, k);
+                if (!state.gridMarks[kRow]) state.gridMarks[kRow] = 1;
+              }
+              if (k !== i1) {
+                const kCol = normalizePairKey(cat1, k, cat2, i2);
+                if (!state.gridMarks[kCol]) state.gridMarks[kCol] = 1;
+              }
+            }
+          }
+        } else {
+          audio.play('scratch');
+        }
+      }
+
+      /* ------------------------------------------------------------------
+         ABA 3: FICHAS DETALHADAS
+         ------------------------------------------------------------------ */
+      function renderDossierFiles() {
+        const c = state.currentCase;
+        const box = document.getElementById('dossier-files-container');
+        let html = '';
+
+        html += `<div class="p-3.5 rounded-xl dossier-sheet">
+          <h3 class="font-editorial text-base font-black mb-2">🕵️ Fichas dos Suspeitos</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${c.suspects.map(s => `
+              <div class="p-2.5 rounded-xl dossier-card text-xs">
+                <div class="font-bold text-sm">${s.icon} ${s.name}</div>
+                <div class="opacity-80 mt-0.5">Signo: <strong>${s.sign}</strong> • ${s.hand}</div>
+                <div class="opacity-80">Altura: ${s.height} • ${s.trait}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+
+        html += `<div class="p-3.5 rounded-xl dossier-sheet">
+          <h3 class="font-editorial text-base font-black mb-2">🗡️ Armas & Evidências</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${c.weapons.map(w => `
+              <div class="p-2.5 rounded-xl dossier-card text-xs">
+                <div class="font-bold text-sm">${w.icon} ${w.name}</div>
+                <div class="opacity-80 mt-0.5">Peso: <strong>${w.weight}</strong> • Material: ${w.material}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+
+        html += `<div class="p-3.5 rounded-xl dossier-sheet">
+          <h3 class="font-editorial text-base font-black mb-2">🏛️ Locais Investigados</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${c.locations.map(l => `
+              <div class="p-2.5 rounded-xl dossier-card text-xs">
+                <div class="font-bold text-sm">${l.icon} ${l.name}</div>
+                <div class="opacity-80 mt-0.5">${l.env} • Setor: ${l.floor}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+
+        if (c.hasMotives) {
+          html += `<div class="p-3.5 rounded-xl dossier-sheet">
+            <h3 class="font-editorial text-base font-black mb-2">📜 Motivos Possíveis</h3>
+            <div class="grid grid-cols-2 gap-2">
+              ${c.motives.map(m => `
+                <div class="p-2.5 rounded-xl dossier-card text-xs">
+                  <div class="font-bold text-sm">${m.icon} ${m.name}</div>
+                  <div class="opacity-80">Natureza: ${m.category}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>`;
+        }
+
+        box.innerHTML = html;
+      }
+
+      /* ------------------------------------------------------------------
+         ABA 4: ACUSAÇÃO OFICIAL & CARIMBO ANIMADO
+         ------------------------------------------------------------------ */
+      function renderAccusationForm() {
+        const c = state.currentCase;
+        const fillSelect = (id, list) => {
+          const sel = document.getElementById(id);
+          sel.innerHTML = list.map(item => `<option value="${item.name}">${item.icon} ${item.name}</option>`).join('');
+        };
+
+        fillSelect('accuse-suspect', c.suspects);
+        fillSelect('accuse-weapon', c.weapons);
+        fillSelect('accuse-location', c.locations);
+
+        const motWrap = document.getElementById('accuse-motive-wrap');
+        if (c.hasMotives) {
+          motWrap.classList.remove('hidden');
+          fillSelect('accuse-motive', c.motives);
+        } else {
+          motWrap.classList.add('hidden');
+        }
+
+        document.getElementById('accusation-result-box').classList.add('hidden');
+      }
+
+      function handleAccusationSubmit() {
+        const c = state.currentCase;
+        if (!c) return;
+
+        const sus = document.getElementById('accuse-suspect').value;
+        const wep = document.getElementById('accuse-weapon').value;
+        const loc = document.getElementById('accuse-location').value;
+        const mot = c.hasMotives ? document.getElementById('accuse-motive').value : null;
+
+        const sol = c.solution;
+        const isCorrect =
+          sus === sol.suspectName &&
+          wep === sol.weaponName &&
+          loc === sol.locationName &&
+          (!c.hasMotives || mot === sol.motiveName);
+
+        audio.play('stamp');
+        const resBox = document.getElementById('accusation-result-box');
+        resBox.classList.remove('hidden');
+
+        if (isCorrect) {
+          if (state.timerId) clearInterval(state.timerId);
+          audio.play('win');
+
+          let earnedText = 'Caso já arquivado anteriormente';
+          if (!state.caseSolvedNow) {
+            state.caseSolvedNow = true;
+            const firstTime = !state.economy.solvedCases[c.id];
+            state.economy.solvedCases[c.id] = true;
+            state.economy.streak += 1;
+
+            const baseReward = state.isDaily ? 60 : (c.diff === 'easy' ? 20 : c.diff === 'medium' ? 35 : 50);
+            const streakBonus = Math.min(state.economy.streak * 3, 18);
+            const mult = state.economy.unlocked.includes('double_coins') ? 2 : 1;
+            const totalCoins = (firstTime ? (baseReward + streakBonus) : Math.floor(baseReward / 2)) * mult;
+
+            state.economy.coins += totalCoins;
+            saveEconomy();
+            earnedText = `+${totalCoins} 🪙 adicionadas ao cofre!`;
+          }
+
+          launchReactionSticker(STICKERS[6]);
+
+          resBox.innerHTML = `
+            <div class="inline-block px-4 py-1.5 border-4 border-emerald-700 text-emerald-700 font-typewriter font-black text-xl uppercase tracking-widest stamp-animated">
+              CASO ENCERRADO ✓
+            </div>
+            <p class="text-xs sm:text-sm font-semibold">
+              Excelente dedução! <strong>${sol.suspectName}</strong> cometeu o crime em <strong>${sol.locationName}</strong> usando <strong>${sol.weaponName}</strong>${sol.motiveName ? ` por <strong>${sol.motiveName}</strong>` : ''}.
+            </p>
+            <div class="font-typewriter text-xs font-bold text-amber-700">${earnedText}</div>
+            <button id="btn-next-case-win" type="button"
+              class="w-full py-3 rounded-xl font-editorial font-black text-sm uppercase text-white shadow-lg active:scale-95 transition"
+              style="background: var(--accent-teal);">
+              Avançar para o Próximo Caso →
+            </button>
+          `;
+
+          document.getElementById('btn-next-case-win').addEventListener('click', () => {
+            if (state.isDaily) {
+              state.isDaily = false;
+              state.caseNumber = 1;
+            } else {
+              state.caseNumber = state.caseNumber < 30 ? state.caseNumber + 1 : 1;
+            }
+            switchTab('clues');
+            generateCase();
+          });
+        } else {
+          state.economy.streak = 0;
+          saveEconomy();
+          audio.play('error');
+
+          resBox.innerHTML = `
+            <div class="inline-block px-4 py-1.5 border-4 border-rose-700 text-rose-700 font-typewriter font-black text-xl uppercase tracking-widest stamp-animated">
+              ACUSAÇÃO REJEITADA ✗
+            </div>
+            <p class="text-xs sm:text-sm">
+              As evidências forenses não batem com essa combinação! Revise as pistas${c.diff !== 'easy' ? ' e lembre-se de que apenas o culpado mente nos depoimentos' : ''}.
+            </p>
+          `;
+        }
+      }
+
+      /* ------------------------------------------------------------------
+         H. ARSENAL RÁPIDO (DICA EXTRA, DETECTOR DE MENTIRA, CHAVE CIFRA)
+         ------------------------------------------------------------------ */
+      function consumeOrPayPower(itemKey, price) {
+        if ((state.economy.inventory[itemKey] || 0) > 0) {
+          state.economy.inventory[itemKey]--;
+          saveEconomy();
+          return true;
+        }
+        if (state.economy.coins >= price) {
+          state.economy.coins -= price;
+          saveEconomy();
+          audio.play('coin');
+          return true;
+        }
+        showToast(`⚠️ Moedas insuficientes! Você precisa de ${price} 🪙.`);
+        return false;
+      }
+
+      function useExtraHint() {
+        const c = state.currentCase;
+        if (!c) return;
+        const N = c.size;
+        const sol = c.solution;
+
+        // Lista todas as confirmações (✓) verdadeiras ainda não marcadas na grade
+        const missingTruths = [];
+        for (let i = 0; i < N; i++) {
+          missingTruths.push(['sus', i, 'loc', sol.locPerm[i], `${c.suspects[i].name} ↔ ${c.locations[sol.locPerm[i]].name}`]);
+          missingTruths.push(['sus', i, 'wep', sol.weaponPerm[i], `${c.suspects[i].name} ↔ ${c.weapons[sol.weaponPerm[i]].name}`]);
+          missingTruths.push(['wep', sol.weaponPerm[i], 'loc', sol.locPerm[i], `${c.weapons[sol.weaponPerm[i]].name} ↔ ${c.locations[sol.locPerm[i]].name}`]);
+          if (c.hasMotives) {
+            missingTruths.push(['sus', i, 'mot', sol.motivePerm[i], `${c.suspects[i].name} ↔ ${c.motives[sol.motivePerm[i]].name}`]);
+          }
+        }
+
+        const unmarked = missingTruths.filter(([cat1, i1, cat2, i2]) => {
+          const k = normalizePairKey(cat1, i1, cat2, i2);
+          return state.gridMarks[k] !== 2;
+        });
+
+        if (unmarked.length === 0) {
+          showToast('🧩 Todas as conexões principais já estão marcadas na grade!');
+          return;
+        }
+
+        if (!consumeOrPayPower('hint', 15)) return;
+
+        const [cat1, i1, cat2, i2, label] = unmarked[0];
+        const k = normalizePairKey(cat1, i1, cat2, i2);
+        state.gridHistory.push({ ...state.gridMarks });
+        setGridMark(cat1, i1, cat2, i2, 2);
+        state.hintedCells.add(k);
+
+        switchTab('grid');
+        renderLogicGrid();
+        showToast(`💡 Informante confirmou: ${label} (✓)`);
+      }
+
+      function useLieDetector() {
+        const c = state.currentCase;
+        if (!c || c.statements.length === 0) {
+          showToast('ℹ️ O nível Fácil não possui depoimentos. Experimente Médio ou Difícil!');
+          return;
+        }
+        if (state.lieRevealed) {
+          showToast(`🤥 O mentiroso deste caso já foi revelado: ${c.solution.suspectName}!`);
+          return;
+        }
+        if (!consumeOrPayPower('lie', 25)) return;
+
+        state.lieRevealed = true;
+        audio.play('confirm');
+        switchTab('clues');
+        renderCluesAndStatements();
+        launchReactionSticker(STICKERS[2]);
+        showToast(`🤥 Detector acionado! ${c.solution.suspectName} está mentindo no depoimento!`);
+      }
+
+      function useCipherKey() {
+        const c = state.currentCase;
+        if (!c) return;
+        const hasCipher = c.clues.some(cl => cl.cipherShift > 0);
+        if (!hasCipher) {
+          showToast('ℹ️ Este caso não possui pistas cifradas. Disponível no nível Difícil!');
+          return;
+        }
+        if (state.ciphersUnlocked) {
+          showToast('🔓 Todas as cifras deste caso já foram traduzidas!');
+          return;
+        }
+        if (!consumeOrPayPower('cipher', 20)) return;
+
+        state.ciphersUnlocked = true;
+        audio.play('confirm');
+        switchTab('clues');
+        renderCluesAndStatements();
+        showToast('🔓 Chave Criptográfica aplicada! Todas as mensagens foram traduzidas.');
+      }
+
+      /* ------------------------------------------------------------------
+         I. MODAL SELETOR DOS 90 CASOS & DECODIFICADOR CÉSAR
+         ------------------------------------------------------------------ */
+      function openCasesModal(diffTab = state.difficulty) {
+        state.modalCaseDiff = diffTab;
+        document.querySelectorAll('.case-diff-tab').forEach(btn => {
+          const active = btn.dataset.caseDiff === diffTab;
+          btn.style.background = active ? 'var(--accent-crimson)' : 'var(--paper-card)';
+          btn.style.color = active ? '#fff' : 'var(--ink-main)';
+        });
+
+        const grid = document.getElementById('cases-grid');
+        grid.innerHTML = '';
+        for (let i = 1; i <= 30; i++) {
+          const id = `${diffTab}_${i}`;
+          const solved = !!state.economy.solvedCases[id];
+          const isCurrent = !state.isDaily && state.difficulty === diffTab && state.caseNumber === i;
+          const title = getCaseTitle(diffTab, i);
+
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = `p-2.5 rounded-xl text-left dossier-card transition active:scale-95 ${isCurrent ? 'ring-2 ring-amber-500' : ''}`;
+          card.innerHTML = `
+            <div class="flex items-center justify-between font-typewriter text-xs font-bold">
+              <span>#${String(i).padStart(2, '0')}</span>
+              <span>${solved ? '✅' : '📁'}</span>
+            </div>
+            <div class="text-[11px] font-bold mt-1 leading-snug line-clamp-2">${title}</div>
+          `;
+          card.addEventListener('click', () => {
+            state.isDaily = false;
+            state.difficulty = diffTab;
+            state.caseNumber = i;
+            document.getElementById('difficulty-select').value = diffTab;
+            document.getElementById('cases-modal').classList.add('hidden');
+            switchTab('clues');
+            generateCase();
+          });
+          grid.appendChild(card);
+        }
+
+        document.getElementById('cases-modal').classList.remove('hidden');
+      }
+
+      let currentCipherEncoded = '';
+      function openCipherModal(encodedText) {
+        currentCipherEncoded = encodedText;
+        document.getElementById('cipher-encoded-text').textContent = encodedText;
+        const slider = document.getElementById('cipher-slider');
+        slider.value = '0';
+        document.getElementById('cipher-shift-val').textContent = '0';
+        document.getElementById('cipher-decoded-text').textContent = encodedText;
+        document.getElementById('cipher-modal').classList.remove('hidden');
+      }
+
+      /* ------------------------------------------------------------------
+         J. STICKERS ANIMADOS (REAÇÕES & ARRASTE SOBRE O DOSSIÊ)
+         ------------------------------------------------------------------ */
+      function launchReactionSticker(st) {
+        const fx = document.createElement('div');
+        fx.className = 'sticker-reaction-fx px-4 py-2 rounded-2xl font-bold text-base border-2 shadow-2xl';
+        fx.style.background = st.bg;
+        fx.style.color = st.color;
+        fx.style.borderColor = st.border;
+        fx.innerHTML = `${st.emoji} ${st.label}`;
+        document.body.appendChild(fx);
+        setTimeout(() => fx.remove(), 1300);
+      }
+
+      function setupStickers() {
+        const palette = document.getElementById('sticker-palette');
+        const layer = document.getElementById('placed-stickers-layer');
+        const workspace = document.getElementById('game-workspace');
+
+        STICKERS.forEach(st => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold border-2 shadow flex items-center gap-1 select-none touch-none active:scale-90 transition';
+          btn.style.background = st.bg;
+          btn.style.color = st.color;
+          btn.style.borderColor = st.border;
+          btn.innerHTML = `<span>${st.emoji}</span><span>${st.label}</span>`;
+
+          let sx = 0, sy = 0, dragging = false, ghost = null;
+
+          btn.addEventListener('pointerdown', e => {
+            sx = e.clientX; sy = e.clientY; dragging = false;
+            try { btn.setPointerCapture(e.pointerId); } catch (_) {}
+          });
+
+          btn.addEventListener('pointermove', e => {
+            if (sx === 0 && sy === 0) return;
+            if (Math.hypot(e.clientX - sx, e.clientY - sy) > 10 && !dragging) {
+              dragging = true;
+              ghost = document.createElement('div');
+              ghost.className = 'fixed z-50 pointer-events-none px-2.5 py-1 rounded-xl text-xs font-bold border-2 shadow-xl';
+              ghost.style.background = st.bg;
+              ghost.style.color = st.color;
+              ghost.style.borderColor = st.border;
+              ghost.innerHTML = `${st.emoji} ${st.label}`;
+              document.body.appendChild(ghost);
+            }
+            if (dragging && ghost) {
+              ghost.style.left = `${e.clientX - 34}px`;
+              ghost.style.top = `${e.clientY - 16}px`;
+            }
+          });
+
+          btn.addEventListener('pointerup', e => {
+            try { btn.releasePointerCapture(e.pointerId); } catch (_) {}
+            if (dragging && ghost) {
+              ghost.remove(); ghost = null;
+              const rect = workspace.getBoundingClientRect();
+              const rx = e.clientX - rect.left - 34;
+              const ry = e.clientY - rect.top - 16;
+              if (rx >= 0 && ry >= 0 && rx <= rect.width - 40 && ry <= rect.height - 24) {
+                const badge = document.createElement('div');
+                badge.className = 'placed-sticker pointer-events-auto px-2.5 py-1 rounded-xl text-xs font-bold border-2';
+                badge.style.left = `${rx}px`;
+                badge.style.top = `${ry}px`;
+                badge.style.background = st.bg;
+                badge.style.color = st.color;
+                badge.style.borderColor = st.border;
+                badge.title = 'Toque para remover';
+                badge.innerHTML = `${st.emoji} ${st.label}`;
+                badge.addEventListener('click', () => { audio.play('scratch'); badge.remove(); });
+                layer.appendChild(badge);
+                audio.play('confirm');
+              }
+            } else if (sx !== 0 || sy !== 0) {
+              launchReactionSticker(st);
+              audio.play('confirm');
+            }
+            sx = 0; sy = 0; dragging = false;
+          });
+
+          palette.appendChild(btn);
+        });
+      }
+
+      /* ------------------------------------------------------------------
+         K. PERFIL LOCAL, CÂMERA (128×128 JPEG 0.75) E LOJA INVESTIGATIVA
+         ------------------------------------------------------------------ */
+      let draftAvatar = EMBLEMS[0].svg;
+      let cameraStream = null;
+      let facingMode = 'user';
+
+      function saveEconomy() {
+        SafeStorage.set(KEY_ECONOMY, JSON.stringify(state.economy));
+        updateEconomyUI();
+      }
+
+      function renderAvatar(el, data) {
+        if (!el) return;
+        if (data && data.startsWith('data:image')) {
+          el.innerHTML = `<img src="${data}" alt="Detetive" class="w-full h-full object-cover" />`;
+        } else if (data && data.startsWith('<svg')) {
+          el.innerHTML = data;
+        } else {
+          el.innerHTML = `<span class="text-xl">🕵️</span>`;
+        }
+      }
+
+      function renderHeaderProfile() {
+        const p = state.profile || { name: 'Detetive', avatar: EMBLEMS[0].svg };
+        document.getElementById('header-player-name').textContent = p.name;
+        const box = document.getElementById('header-avatar');
+        renderAvatar(box, p.avatar);
+        if (state.economy.unlocked.includes('gold_frame')) box.classList.add('gold-avatar-ring');
+        else box.classList.remove('gold-avatar-ring');
+      }
+
+      function updateEconomyUI() {
+        document.getElementById('header-coins').textContent = state.economy.coins;
+        document.getElementById('header-streak').textContent = state.economy.streak;
+        document.getElementById('store-balance').textContent = state.economy.coins;
+
+        const solved90 = Object.keys(state.economy.solvedCases).filter(k => !k.startsWith('daily_')).length;
+        document.getElementById('header-solved').textContent = `${solved90}/90`;
+
+        const inv = state.economy.inventory;
+        document.getElementById('badge-qty-hint').textContent = inv.hint > 0 ? `${inv.hint}×` : '15🪙';
+        document.getElementById('badge-qty-lie').textContent = inv.lie > 0 ? `${inv.lie}×` : '25🪙';
+        document.getElementById('badge-qty-cipher').textContent = inv.cipher > 0 ? `${inv.cipher}×` : '20🪙';
+
+        const activeT = THEMES[state.economy.activeTheme] || THEMES.pulp;
+        document.getElementById('active-theme-pill').textContent = activeT.short;
+      }
+
+      function applyTheme(key) {
+        const t = THEMES[key] || THEMES.pulp;
+        state.economy.activeTheme = key;
+        Object.entries(t.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+      }
+
+      function cycleUnlockedTheme() {
+        const keys = ['pulp', 'notebook', 'noir', 'forensic'].filter(
+          k => k === 'pulp' || state.economy.unlocked.includes(`theme_${k}`)
+        );
+        if (keys.length <= 1) {
+          openStoreModal();
+          showToast('🎨 Desbloqueie novos temas visuais na Loja usando suas moedas!');
+          return;
+        }
+        const curIdx = keys.indexOf(state.economy.activeTheme);
+        const nextKey = keys[(curIdx + 1) % keys.length];
+        applyTheme(nextKey);
+        saveEconomy();
+        audio.play('confirm');
+        showToast(`Tema aplicado: ${THEMES[nextKey].name}`);
+      }
+
+      function openProfileModal(firstRun = false) {
+        const grid = document.getElementById('emblems-grid');
+        grid.innerHTML = '';
+        const hasVip = state.economy.unlocked.includes('vip_emblems');
+
+        EMBLEMS.forEach(emb => {
+          const locked = emb.vip && !hasVip;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `relative h-12 rounded-xl dossier-card flex items-center justify-center active:scale-90 transition ${locked ? 'opacity-50' : ''}`;
+          btn.innerHTML = emb.svg + (locked ? `<span class="absolute -top-1 -right-1 text-[10px]">🔒</span>` : '');
+          btn.addEventListener('click', () => {
+            if (locked) {
+              showToast('🔒 Distintivo VIP! Desbloqueie o Pacote Emblemas VIP na Loja.');
+              return;
+            }
+            draftAvatar = emb.svg;
+            renderAvatar(document.getElementById('profile-avatar-preview'), draftAvatar);
+          });
+          grid.appendChild(btn);
+        });
+
+        const solved90 = Object.keys(state.economy.solvedCases).filter(k => !k.startsWith('daily_')).length;
+        document.getElementById('stat-solved').textContent = `${solved90}/90`;
+        document.getElementById('stat-streak').textContent = `${state.economy.streak}🔥`;
+        document.getElementById('stat-coins').textContent = `${state.economy.coins} 🪙`;
+
+        const closeBtn = document.getElementById('btn-close-profile');
+        if (firstRun) {
+          closeBtn.classList.add('hidden');
+          draftAvatar = EMBLEMS[0].svg;
+          document.getElementById('input-player-name').value = '';
+        } else {
+          closeBtn.classList.remove('hidden');
+          draftAvatar = (state.profile && state.profile.avatar) || EMBLEMS[0].svg;
+          document.getElementById('input-player-name').value = (state.profile && state.profile.name) || '';
+        }
+
+        renderAvatar(document.getElementById('profile-avatar-preview'), draftAvatar);
+        document.getElementById('profile-modal').classList.remove('hidden');
+      }
+
+      async function startCamera() {
+        stopCamera();
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('no_camera');
+          }
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: false });
+          const vid = document.getElementById('camera-video');
+          vid.srcObject = cameraStream;
+          document.getElementById('camera-box').classList.remove('hidden');
+        } catch (_) {
+          showToast('📷 Câmera bloqueada ou indisponível neste ambiente. Use a Galeria ou um distintivo SVG!');
+        }
+      }
+
+      function stopCamera() {
+        if (cameraStream) {
+          try { cameraStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+          cameraStream = null;
+        }
+        document.getElementById('camera-box').classList.add('hidden');
+      }
+
+      function compressSquareAvatar(src, isVideo = false) {
+        return new Promise(resolve => {
+          const canvas = document.createElement('canvas');
+          const s = 128;
+          canvas.width = s; canvas.height = s;
+          const ctx = canvas.getContext('2d');
+          if (isVideo) {
+            const vw = src.videoWidth || 320, vh = src.videoHeight || 320;
+            const side = Math.min(vw, vh);
+            ctx.drawImage(src, (vw - side) / 2, (vh - side) / 2, side, side, 0, 0, s, s);
+            resolve(canvas.toDataURL('image/jpeg', 0.75));
+          } else {
+            const reader = new FileReader();
+            reader.onload = ev => {
+              const img = new Image();
+              img.onload = () => {
+                const side = Math.min(img.width, img.height);
+                ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, s, s);
+                resolve(canvas.toDataURL('image/jpeg', 0.75));
+              };
+              img.src = ev.target.result;
+            };
+            reader.readAsDataURL(src);
+          }
+        });
+      }
+
+      function openStoreModal() {
+        const consBox = document.getElementById('store-consumables');
+        consBox.innerHTML = '';
+        STORE_CONSUMABLES.forEach(item => {
+          const qty = state.economy.inventory[item.id] || 0;
+          const card = document.createElement('div');
+          card.className = 'p-3 rounded-xl dossier-card flex items-center justify-between gap-3';
+          card.innerHTML = `
+            <div class="min-w-0">
+              <div class="font-bold text-sm flex items-center gap-1.5">
+                <span>${item.title}</span>
+                <span class="px-1.5 py-0.5 rounded font-typewriter text-[10px] bg-black/15">Posse: ${qty}</span>
+              </div>
+              <div class="text-xs opacity-80">${item.desc}</div>
+            </div>
+            <button type="button" class="shrink-0 px-3 py-2 rounded-xl font-typewriter text-xs font-bold text-white active:scale-95 transition"
+              style="background: var(--accent-crimson);">
+              +1 (${item.price} 🪙)
+            </button>
+          `;
+          card.querySelector('button').addEventListener('click', () => {
+            if (state.economy.coins < item.price) {
+              showToast(`⚠️ Você precisa de ${item.price} 🪙 para comprar este item.`);
+              return;
+            }
+            state.economy.coins -= item.price;
+            state.economy.inventory[item.id] = (state.economy.inventory[item.id] || 0) + 1;
+            audio.play('coin');
+            saveEconomy();
+            openStoreModal();
+            showToast(`🎒 +1 ${item.title} adicionado ao arsenal!`);
+          });
+          consBox.appendChild(card);
+        });
+
+        const permBox = document.getElementById('store-permanents');
+        permBox.innerHTML = '';
+        STORE_PERMANENTS.forEach(item => {
+          const owned = state.economy.unlocked.includes(item.id);
+          const active = item.type === 'theme' && state.economy.activeTheme === item.themeKey;
+          const card = document.createElement('div');
+          card.className = 'p-3 rounded-xl dossier-card flex items-center justify-between gap-3';
+          card.innerHTML = `
+            <div class="min-w-0">
+              <div class="font-bold text-sm">${item.title}</div>
+              <div class="text-xs opacity-80">${item.desc}</div>
+            </div>
+            <button type="button" class="shrink-0 px-3 py-2 rounded-xl font-typewriter text-xs font-bold active:scale-95 transition"
+              style="background: ${owned ? (active ? '#16a34a' : 'var(--paper-bg)') : 'var(--accent-crimson)'}; color: ${owned && !active ? 'var(--ink-main)' : '#fff'};">
+              ${owned ? (item.type === 'theme' ? (active ? '✓ Ativo' : 'Aplicar') : '✓ Adquirido') : `${item.price} 🪙`}
+            </button>
+          `;
+          card.querySelector('button').addEventListener('click', () => {
+            if (owned) {
+              if (item.type === 'theme') {
+                applyTheme(item.themeKey);
+                saveEconomy();
+                openStoreModal();
+              }
+              return;
+            }
+            if (state.economy.coins < item.price) {
+              showToast(`⚠️ Resolva mais casos para acumular ${item.price} 🪙!`);
+              return;
+            }
+            state.economy.coins -= item.price;
+            state.economy.unlocked.push(item.id);
+            if (item.type === 'theme') applyTheme(item.themeKey);
+            audio.play('coin');
+            saveEconomy();
+            renderHeaderProfile();
+            openStoreModal();
+            showToast(`🎉 "${item.title}" desbloqueado!`);
+          });
+          permBox.appendChild(card);
+        });
+
+        document.getElementById('store-modal').classList.remove('hidden');
+      }
+
+      /* ------------------------------------------------------------------
+         L. NAVEGAÇÃO DE ABAS (TOQUE + SWIPE HORIZONTAL) & TOAST
+         ------------------------------------------------------------------ */
+      const TAB_ORDER = ['clues', 'grid', 'files', 'accuse'];
+
+      function switchTab(tabKey) {
+        state.activeTab = tabKey;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          const active = btn.dataset.tab === tabKey;
+          btn.style.borderColor = active ? 'var(--accent-crimson)' : 'transparent';
+          btn.style.color = active ? 'var(--accent-crimson)' : 'var(--ink-main)';
+          btn.style.background = active ? 'var(--paper-bg)' : 'transparent';
+        });
+        document.querySelectorAll('.tab-panel').forEach(sec => {
+          sec.classList.toggle('hidden', sec.id !== `tab-${tabKey}`);
+        });
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const box = document.getElementById('toast-box');
+        box.textContent = msg;
+        box.classList.remove('hidden');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => box.classList.add('hidden'), 3400);
+      }
+
+      function bindEvents() {
+        // Perfil & Câmera
+        document.getElementById('btn-open-profile').addEventListener('click', () => openProfileModal(false));
+        document.getElementById('btn-close-profile').addEventListener('click', () => {
+          stopCamera();
+          document.getElementById('profile-modal').classList.add('hidden');
+        });
+        document.getElementById('input-photo-upload').addEventListener('change', async e => {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          draftAvatar = await compressSquareAvatar(f, false);
+          renderAvatar(document.getElementById('profile-avatar-preview'), draftAvatar);
+        });
+        document.getElementById('btn-start-camera').addEventListener('click', startCamera);
+        document.getElementById('btn-switch-camera').addEventListener('click', () => {
+          facingMode = facingMode === 'user' ? 'environment' : 'user';
+          startCamera();
+        });
+        document.getElementById('btn-snap-photo').addEventListener('click', async () => {
+          draftAvatar = await compressSquareAvatar(document.getElementById('camera-video'), true);
+          renderAvatar(document.getElementById('profile-avatar-preview'), draftAvatar);
+          stopCamera();
+        });
+        document.getElementById('btn-cancel-camera').addEventListener('click', stopCamera);
+        document.getElementById('btn-save-profile').addEventListener('click', () => {
+          const name = document.getElementById('input-player-name').value.trim();
+          state.profile = { name: name || 'Inspetor', avatar: draftAvatar };
+          SafeStorage.set(KEY_PROFILE, JSON.stringify(state.profile));
+          stopCamera();
+          renderHeaderProfile();
+          document.getElementById('profile-modal').classList.add('hidden');
+          audio.play('win');
+        });
+
+        // Loja, Tema & Som
+        document.getElementById('btn-open-store').addEventListener('click', openStoreModal);
+        document.getElementById('btn-close-store').addEventListener('click', () => {
+          document.getElementById('store-modal').classList.add('hidden');
+        });
+        document.getElementById('btn-cycle-theme').addEventListener('click', cycleUnlockedTheme);
+        document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+          audio.muted = !audio.muted;
+          document.getElementById('btn-toggle-sound').textContent = audio.muted ? '🔇' : '🔊';
+          if (!audio.muted) audio.play('confirm');
+        });
+
+        // Nível, 90 Casos & Caso do Dia
+        document.getElementById('difficulty-select').addEventListener('change', e => {
+          state.difficulty = e.target.value;
+          state.isDaily = false;
+          state.caseNumber = 1;
+          switchTab('clues');
+          generateCase();
+        });
+        document.getElementById('btn-open-cases').addEventListener('click', () => openCasesModal(state.difficulty));
+        document.getElementById('btn-close-cases').addEventListener('click', () => {
+          document.getElementById('cases-modal').classList.add('hidden');
+        });
+        document.querySelectorAll('.case-diff-tab').forEach(btn => {
+          btn.addEventListener('click', () => openCasesModal(btn.dataset.caseDiff));
+        });
+        document.getElementById('btn-daily-case').addEventListener('click', () => {
+          state.isDaily = true;
+          switchTab('clues');
+          generateCase();
+          showToast('📅 Caso Especial do Dia carregado (Recompensa 2×🪙)!');
+        });
+
+        // Arsenal Rápido
+        document.getElementById('btn-use-hint').addEventListener('click', useExtraHint);
+        document.getElementById('btn-use-lie').addEventListener('click', useLieDetector);
+        document.getElementById('btn-use-cipher').addEventListener('click', useCipherKey);
+
+        // Abas + Swipe Horizontal
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        let swipeStartX = 0, swipeStartY = 0;
+        const swipeArea = document.getElementById('tabs-swipe-area');
+        swipeArea.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+        swipeArea.addEventListener('touchend', e => {
+          if (e.changedTouches.length === 1 && swipeStartX !== 0) {
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            const dy = e.changedTouches[0].clientY - swipeStartY;
+            swipeStartX = 0;
+            // Evita conflito se usuário estiver rolando a grade horizontalmente
+            if (state.activeTab === 'grid') return;
+            if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+              const curIdx = TAB_ORDER.indexOf(state.activeTab);
+              if (dx < 0 && curIdx < TAB_ORDER.length - 1) switchTab(TAB_ORDER[curIdx + 1]);
+              if (dx > 0 && curIdx > 0) switchTab(TAB_ORDER[curIdx - 1]);
+            }
+          }
+        }, { passive: true });
+
+        // Controles da Grade
+        document.getElementById('btn-toggle-autox').addEventListener('click', () => {
+          state.autoX = !state.autoX;
+          document.getElementById('autox-label').textContent = state.autoX ? 'ON' : 'OFF';
+          document.getElementById('btn-toggle-autox').style.background = state.autoX ? 'var(--accent-teal)' : '#64748B';
+          audio.play('confirm');
+        });
+        document.getElementById('btn-grid-undo').addEventListener('click', () => {
+          if (state.gridHistory.length === 0) {
+            showToast('Nada para desfazer na grade.');
+            return;
+          }
+          state.gridMarks = state.gridHistory.pop();
+          audio.play('scratch');
+          renderLogicGrid();
+        });
+        document.getElementById('btn-grid-clear').addEventListener('click', () => {
+          state.gridHistory.push({ ...state.gridMarks });
+          state.gridMarks = {};
+          state.hintedCells.clear();
+          audio.play('scratch');
+          renderLogicGrid();
+        });
+
+        // Acusação
+        document.getElementById('btn-submit-accusation').addEventListener('click', handleAccusationSubmit);
+
+        // Decodificador César
+        document.getElementById('btn-close-cipher').addEventListener('click', () => {
+          document.getElementById('cipher-modal').classList.add('hidden');
+        });
+        document.getElementById('cipher-slider').addEventListener('input', e => {
+          const shift = parseInt(e.target.value, 10) || 0;
+          document.getElementById('cipher-shift-val').textContent = String(shift);
+          document.getElementById('cipher-decoded-text').textContent = caesarCipher(currentCipherEncoded, -shift);
+        });
+
+        // Stickers
+        document.getElementById('btn-toggle-stickers').addEventListener('click', () => {
+          document.getElementById('sticker-drawer').classList.toggle('hidden');
+          audio.play('confirm');
+        });
+        document.getElementById('btn-clear-stickers').addEventListener('click', () => {
+          document.getElementById('placed-stickers-layer').innerHTML = '';
+          audio.play('scratch');
+        });
+      }
+
+      /* ------------------------------------------------------------------
+         M. BOOT BLINDADO (DOMCONTENTLOADED + FALLBACK IMEDIATO)
+         ------------------------------------------------------------------ */
+      let hasBooted = false;
+      function bootApp() {
+        if (hasBooted) return;
+        hasBooted = true;
+
+        try {
+          setupPWA();
+
+          const rawProfile = SafeStorage.get(KEY_PROFILE);
+          if (rawProfile) {
+            try { state.profile = JSON.parse(rawProfile); } catch (_) {}
+          }
+
+          const rawEconomy = SafeStorage.get(KEY_ECONOMY);
+          if (rawEconomy) {
+            try {
+              const parsed = JSON.parse(rawEconomy);
+              state.economy = {
+                ...state.economy,
+                ...parsed,
+                solvedCases: parsed.solvedCases || {},
+                unlocked: Array.isArray(parsed.unlocked) ? parsed.unlocked : ['theme_pulp'],
+                inventory: { ...state.economy.inventory, ...(parsed.inventory || {}) }
+              };
+            } catch (_) {}
+          }
+
+          applyTheme(state.economy.activeTheme || 'pulp');
+          updateEconomyUI();
+          renderHeaderProfile();
+
+          setupStickers();
+          bindEvents();
+          switchTab('clues');
+          generateCase();
+
+          if (!state.profile) {
+            openProfileModal(true);
+          }
+        } catch (err) {
+          console.error('Erro ao iniciar Dossiê Noir:', err);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootApp);
+      } else {
+        bootApp();
+      }
+      setTimeout(bootApp, 150);
+    })();
+  </script>
+</body>
+</html>
